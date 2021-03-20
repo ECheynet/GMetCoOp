@@ -1,11 +1,25 @@
 # Exploring the MetCoOp-Ensemble Prediction System data
 
-
-
 [![View Exploring the MetCoOp-Ensemble Prediction System data on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://se.mathworks.com/matlabcentral/fileexchange/89022-exploring-the-metcoop-ensemble-prediction-system-data)
 
+## Summary
 
-Automated and remote data extraction of MetCoOp-Ensemble Prediction System data
+The data from MEPS (MetCoOp-Ensemble Prediction System) [1] are extracted from the THREDDS Data Server of the Norwegian Meteorological Institute [2]. The data source is made of netcdf files. The OPeNDAP framework is used to read the data without downloading them. The data are resampled as gridded data.
+
+## Content
+
+The repository contains:
+
+An example file Documentation.mlx as a Matlab live script
+The function MET3P.m, which read and extract the data remotely and resample them as gridded data
+
+This is the first version of the submission. Several bugs may be present. Future versions will improve the example file.
+
+## References
+
+[1] https://www.met.no/en/projects/metcoop
+[2] https://thredds.met.no
+
 
 ## Example 1 (Storam Aina in Scandinavia) 
 
