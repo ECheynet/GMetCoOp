@@ -1,7 +1,6 @@
-# GMetCoOp
-Automated and remote data extraction of MetCoOp-Ensemble Prediction System data
+# Automated and remote data extraction of MetCoOp-Ensemble Prediction System data
 
-
+[![View Exploring the MetCoOp-Ensemble Prediction System data on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://se.mathworks.com/matlabcentral/fileexchange/89022-exploring-the-metcoop-ensemble-prediction-system-data)
 
 
 
