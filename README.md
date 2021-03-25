@@ -1,6 +1,7 @@
 # Exploring the MetCoOp-Ensemble Prediction System data
 
 [![View Exploring the MetCoOp-Ensemble Prediction System data on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://se.mathworks.com/matlabcentral/fileexchange/89022-exploring-the-metcoop-ensemble-prediction-system-data)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4636108.svg)](https://doi.org/10.5281/zenodo.4636108)
 
 ## Summary
 
