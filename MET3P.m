@@ -1,3 +1,4 @@
+
 function [data] = MET3P(targetLat,targetLon,targetYear,targetMonth,...
     targetDay,targetHour,type,output,resolution)
 % 
@@ -31,22 +32,21 @@ function [data] = MET3P(targetLat,targetLon,targetYear,targetMonth,...
 % Outputs:
 %   * data: structure with the following fields
 %       - time: [1x1] datetime
-%       - LAF: [Nlon x Nlat] double: land_area_fraction
-%       - U:  [Nlon x Nlat] double: wind_speed at 10m above the surface in
+%       - LAF: [Nlon x Nlat] double: land_area_fraction
+%       - U:  [Nlon x Nlat] double: wind_speed at 10m above the surface in
 %       m/s
-%       - DD:  [Nlon x Nlat] double: wind_direction at 10m above the surface
+%       - DD:  [Nlon x Nlat] double: wind_direction at 10m above the surface
 %       in deg
-%       - RH:  [Nlon x Nlat] double: relative_humidity 2m  above the surface
-%       - PA:  [Nlon x Nlat] double: precipitation_amount in kg/m^2
-%       - I:  [Nlon x Nlat] double:
+%       - RH:  [Nlon x Nlat] double: relative_humidity 2m  above the surface
+%       - PA:  [Nlon x Nlat] double: precipitation_amount in kg/m^2
+%       - I:  [Nlon x Nlat] double:
 %       integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time in W s/m^2
-%       - P:  [Nlon x Nlat] double: air_pressure_at_sea_level in Pa
-%       - T:  [Nlon x Nlat] double: air_temperature_2m in K
-%       - CAF:  [Nlon x Nlat] double: cloud_area_fraction
+%       - P:  [Nlon x Nlat] double: air_pressure_at_sea_level in Pa
+%       - T:  [Nlon x Nlat] double: air_temperature_2m in K
+%       - CAF:  [Nlon x Nlat] double: cloud_area_fraction
 %
 %
-% Author: E. Cheynet - UiB, Norway - last modified: 20-03-2021
-
+% Author: E. Cheynet - UiB, Norway - last modified: 14-04-2021
 %%
 if strcmpi(type,'rerun version 2')
     typeA = 'metpparchivev2';
@@ -57,24 +57,19 @@ elseif strcmpi(type,'Operational')
 else
     error('type unknown');
 end
-
-
 %% Definition of the grid
 [lon,lat] = ndgrid(targetLon(1):resolution:targetLon(end),targetLat(1):resolution:targetLat(end));
 %% Check month and day number + transform date into string
-
 if targetMonth<10
     myMonth = ['0',num2str(targetMonth)];
 else
     myMonth = num2str(targetMonth);
 end
-
 if targetDay<10
     myDay = ['0',num2str(targetDay)];
 else
     myDay = num2str(targetDay);
 end
-
 if targetHour<10
     myHour = ['0',num2str(targetHour)];
 else
@@ -84,33 +79,44 @@ myYear = num2str(targetYear);
 %% Preallocation and initalisation
 data = struct('time',[],'LAF',[],'U',[],'DD',[],'RH',[],'PA',[],'I',[],...
     'P',[],'T',[],'CAF',[]);
-
 urldat= ['https://thredds.met.no/thredds/dodsC/',typeA,'/',myYear,'/',myMonth,'/',myDay,'/met_analysis_1_0km_nordic_',myYear,myMonth,myDay,'T',myHour,'Z.nc'];
 time0 = ncread(urldat,'time')./86400+datenum('1970-01-01 00:00:00');
 data.time = datetime(datestr(double(time0)));
-
 lon00 = ncread(urldat,'longitude');
 lat00 = ncread(urldat,'latitude');
 dummyLat = lat00(:);
 dummyLon = lon00(:);
 ind = find(dummyLat>=min(targetLat(:)-0.1) & dummyLat <= max(targetLat(:)+0.1) & dummyLon>=min(targetLon(:)-0.1) & dummyLon <= max(targetLon(:)+0.1));
-
 %% Read the data in a for loop for each selected output
 %  Data are resampled spatially as gridded data
 Nout = numel(output);
-
 for ii=1:Nout
     myVar0 = ncread(urldat,output{ii});
     dummyVar = double(myVar0(:));
-    F_Var = scatteredInterpolant(dummyLat(ind),dummyLon(ind),dummyVar(ind),'linear','none');
-    %     data.U = griddata(lon00,lat00,double(myVar0),lon,lat);
+    
+    
+    if strcmpi(output{ii},'wind_direction_10m')
+        
+        meanU = ncread(urldat,'wind_speed_10m');
+        un = double(meanU(:)).*cosd(dummyVar);
+        ue = double(meanU(:)).*sind(dummyVar);
+        
+        F_ue = scatteredInterpolant(dummyLat(ind),dummyLon(ind),un(ind),'linear','none');
+        F_un = scatteredInterpolant(dummyLat(ind),dummyLon(ind),ue(ind),'linear','none');
+        
+        newUe = F_ue(lat,lon);
+        newUn = F_un(lat,lon);
+        
+        data.DD = atan2(newUn,newUe).*180/pi;
+        
+    else
+        F_Var = scatteredInterpolant(dummyLat(ind),dummyLon(ind),dummyVar(ind),'linear','none');
+    end
     
     if strcmpi(output{ii},'land_area_fraction')
         data.LAF = F_Var(lat,lon);
     elseif strcmpi(output{ii},'wind_speed_10m')
         data.U = F_Var(lat,lon);
-    elseif strcmpi(output{ii},'wind_direction_10m')
-        data.DD = F_Var(lat,lon);
     elseif strcmpi(output{ii},'relative_humidity_2m')
         data.RH = F_Var(lat,lon);
     elseif strcmpi(output{ii},'precipitation_amount')
@@ -126,4 +132,3 @@ for ii=1:Nout
     end
 end
 end
-
